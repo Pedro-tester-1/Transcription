@@ -160,36 +160,35 @@ class ModeSelector(QWidget):
         root.setSpacing(20)
         root.setContentsMargins(40, 30, 40, 40)
 
-        # Barra superior con selector de idioma
+        # Barra superior con selector de idioma tipo pill
         top_bar = QHBoxLayout()
         top_bar.addStretch()
 
-        self.lang_label = QLabel(t("language") + ":")
-        self.lang_label.setStyleSheet("color: #9e9e9e; font-size: 12px;")
-        top_bar.addWidget(self.lang_label)
-
-        self.lang_combo = QComboBox()
-        self.lang_combo.addItem("English", "en")
-        self.lang_combo.addItem("Español", "es")
-        self.lang_combo.setFixedWidth(100)
-        self.lang_combo.setStyleSheet("""
-            QComboBox {
+        pill_container = QFrame()
+        pill_container.setFixedHeight(34)
+        pill_container.setStyleSheet("""
+            QFrame {
                 background: #1e1e2e;
-                color: #e0e0e0;
+                border-radius: 17px;
                 border: 1px solid #37474F;
-                border-radius: 6px;
-                padding: 4px 8px;
-                font-size: 12px;
-            }
-            QComboBox::drop-down { border: none; }
-            QComboBox QAbstractItemView {
-                background: #1e1e2e;
-                color: #e0e0e0;
-                selection-background-color: #1565C0;
             }
         """)
-        self.lang_combo.currentIndexChanged.connect(self._on_lang_change)
-        top_bar.addWidget(self.lang_combo)
+        pill_layout = QHBoxLayout(pill_container)
+        pill_layout.setContentsMargins(4, 4, 4, 4)
+        pill_layout.setSpacing(2)
+
+        self.lang_buttons = {}
+        for label, lang in [("EN", "en"), ("ES", "es")]:
+            btn = QPushButton(label)
+            btn.setFixedSize(44, 24)
+            btn.setCursor(Qt.CursorShape.PointingHandCursor)
+            btn.setCheckable(True)
+            btn.clicked.connect(lambda _, l=lang: self._on_lang_change(l))
+            pill_layout.addWidget(btn)
+            self.lang_buttons[lang] = btn
+
+        self._apply_pill_styles("en")
+        top_bar.addWidget(pill_container)
         root.addLayout(top_bar)
 
         self.title = QLabel(t("app_title"))
@@ -229,12 +228,38 @@ class ModeSelector(QWidget):
 
         root.addStretch()
 
-    def _on_lang_change(self, index):
-        lang = self.lang_combo.itemData(index)
+    def _apply_pill_styles(self, active_lang):
+        for lang, btn in self.lang_buttons.items():
+            if lang == active_lang:
+                btn.setStyleSheet("""
+                    QPushButton {
+                        background: #1565C0;
+                        color: white;
+                        border-radius: 12px;
+                        border: none;
+                        font-size: 11px;
+                        font-weight: bold;
+                    }
+                """)
+                btn.setChecked(True)
+            else:
+                btn.setStyleSheet("""
+                    QPushButton {
+                        background: transparent;
+                        color: #757575;
+                        border-radius: 12px;
+                        border: none;
+                        font-size: 11px;
+                    }
+                    QPushButton:hover { color: #e0e0e0; }
+                """)
+                btn.setChecked(False)
+
+    def _on_lang_change(self, lang):
+        self._apply_pill_styles(lang)
         self.language_changed.emit(lang)
 
     def retranslate(self):
-        self.lang_label.setText(t("language") + ":")
         self.title.setText(t("app_title"))
         self.subtitle.setText(t("subtitle"))
         for key, btn in self.mode_buttons.items():
