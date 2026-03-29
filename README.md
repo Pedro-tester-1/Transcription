@@ -11,10 +11,7 @@ Aplicacion de escritorio para Linux que convierte archivos multimedia de forma s
 ## Instalacion
 
 ```bash
-git clone https://github.com/Pedro-tester-1/Transcription.git
-cd media-converter
-chmod +x install.sh
-./install.sh
+git clone https://github.com/Pedro-tester-1/Transcription.git && cd Transcription && chmod +x install.sh && ./install.sh
 ```
 
 El script instala `ffmpeg` si no lo tienes, crea el entorno virtual, instala las dependencias y crea un acceso directo en el escritorio y en el menu de aplicaciones de KDE.
